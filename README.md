@@ -1,92 +1,182 @@
-Bank Transaction System (Backend)
-An industry-grade banking backend architecture built with Node.js, Express, and MongoDB. This project implements a Ledger-based financial system, ensuring data consistency, auditability, and security for financial transactions.
 
-🚀 Key Features
-Ledger-Based Accounting: Implements double-entry bookkeeping. Balances are derived from transaction history rather than stored as static values to ensure 100% data integrity.
+# 🏦 Bank Transaction System – Backend
 
-Transaction Idempotency: Prevents duplicate payments using unique idempotency keys, ensuring that retried requests do not result in double debits.
+A **production-style banking backend** built using **Node.js, Express, and MongoDB**, designed with a **ledger-based accounting architecture** similar to real-world financial systems.  
+This project focuses on **data consistency, auditability, and transactional safety**.
 
-Secure Authentication: User registration and login using JWT (JSON Web Tokens) stored in HTTP-only cookies and password hashing with bcrypt.
+It demonstrates how modern backend systems handle **secure transactions, idempotent APIs, and derived balances** instead of relying on error-prone stored values.
 
-System User Hierarchy: Dedicated administrative "System User" for controlled operations like initial account funding.
+---
 
-Automated Notifications: Integration with Nodemailer and Google Cloud Gmail API to send real-time email alerts for transactions and registration.
+## 💡 Why this project matters
 
-Advanced MongoDB Queries: Utilizes Aggregation Pipelines for high-performance balance calculation and complex data retrieval.
+Most demo banking projects store balances directly, which leads to data inconsistency and poor auditability.  
+This system follows a **ledger-first design**, where:
 
-🛠 Tech Stack
-Runtime: Node.js
+- All money movement is recorded as immutable transactions  
+- Balances are calculated from the ledger  
+- Every transaction is traceable and auditable  
+- Duplicate requests are safely handled  
 
-Framework: Express.js
+This reflects **real-world financial backend patterns** used in fintech and payment systems.
 
-Database: MongoDB (Atlas)
+---
 
-ODM: Mongoose
+## 🚀 Core Features
 
-Security: JWT, bcrypt, Cookie-parser
+- **Ledger-Based Accounting (Double Entry)**  
+  Credits and debits are recorded separately. Balances are derived using MongoDB aggregation pipelines.
 
-Utilities: Dotenv (Environment Management), Nodemailer (Email Service), Nodemon (Development)
+- **Idempotent Transactions**  
+  Prevents double debit/credit on retries using idempotency keys.
 
-📂 Project Structure
-Plaintext
-src/
-├── config/             # Database & environment configurations
-├── controllers/        # Business logic for Auth, Accounts, and Transactions
-├── middlewares/        # JWT Verification, System User checks, Error handling
-├── models/             # Mongoose Schemas (User, Account, Transaction, Ledger, Blacklist)
-├── routes/             # API Endpoints
-├── services/           # External services (Email/Nodemailer)
-├── app.js              # Express app configuration
-└── server.js           # Server entry point
-⚙️ Setup & Installation
-Clone the repository:
+- **Secure Authentication**  
+  JWT stored in HTTP-only cookies + bcrypt for password hashing.
 
-Bash
-git clone https://github.com/yourusername/bank-backend.git
-cd bank-backend
-Install dependencies:
+- **Role-Based System User**  
+  Dedicated system/admin user for privileged operations like initial funding.
 
-Bash
-npm install
-Environment Variables:
-Create a .env file in the root directory and add the following:
+- **Email Notifications**  
+  Real-time alerts via Nodemailer (Gmail OAuth).
 
-Code snippet
-PORT=3000
-MONGO_URI=your_mongodb_connection_string
-JWT_SECRET=your_secret_key
-EMAIL_USER=your_gmail
-EMAIL_CLIENT_ID=your_google_client_id
-EMAIL_CLIENT_SECRET=your_google_client_secret
-EMAIL_REFRESH_TOKEN=your_google_refresh_token
-Run the application:
+- **Production-Style Architecture**  
+  Clean separation of routes, controllers, services, and middlewares.
 
-Bash
-# For development
-npm run dev
+---
 
-# For production
-npm start
-📝 API Endpoints (Brief)
-Authentication
-POST /api/v1/auth/register - Create a new account.
+## 🛠 Tech Stack
 
-POST /api/v1/auth/login - Secure login with cookie-based JWT.
+**Node.js · Express · MongoDB (Atlas) · Mongoose · JWT · bcrypt · Nodemailer · dotenv**
 
-POST /api/v1/auth/logout - Blacklist token and clear cookies.
+---
 
-Transactions
-POST /api/v1/transactions/transfer - Initiate a credit/debit transaction.
+## 🧠 Architecture (High-Level)
 
-GET /api/v1/transactions/balance - Get derived balance via Aggregation Pipeline.
 
-POST /api/v1/transactions/system/initial-funds - (Admin only) Add initial balance.
 
-🛡 Security Practices
-Password Hashing: Uses salt rounds with bcrypt.
+Client
+│
+▼
+API Routes (Express)
+│
+▼
+Controllers
+│
+▼
+Services  ───────► External Services (Email)
+│
+▼
+Models (Mongoose)
+│
+▼
+MongoDB (Ledger + Transactions + Users)
 
-Route Protection: Custom middleware to intercept unauthorized requests.
 
-JWT Blacklisting: Handles secure logout by invalidating tokens.
 
-Input Validation: Regex-based email validation and schema constraints.
+---
+
+## 🧩 Ledger Flow (Transaction Lifecycle)
+
+
+Client Request
+│
+▼
+Validate & Authenticate
+│
+▼
+Check Idempotency Key
+│
+▼
+Create Ledger Entries (Debit + Credit)
+│
+▼
+Store Transaction Record
+│
+▼
+Derive Balance using Aggregation
+│
+▼
+Send Email Notification
+
+
+
+---
+
+## 🔁 Idempotency Flow
+
+
+
+Client Retry Request
+│
+▼
+Check Idempotency Key
+│
+┌────┴─────┐
+│ Exists?  │
+└────┬─────┘
+│
+Yes  ▼       No
+Return Old    Process Transaction
+Response      Save Idempotency Key
+
+
+
+---
+
+## 🧪 API Endpoints (Brief)
+
+### 🔐 Authentication
+- `POST /api/v1/auth/register`  
+- `POST /api/v1/auth/login`  
+- `POST /api/v1/auth/logout`  
+
+### 💸 Transactions
+- `POST /api/v1/transactions/transfer`  
+- `GET  /api/v1/transactions/balance`  
+- `POST /api/v1/transactions/system/initial-funds`  
+
+---
+
+## 🔐 Security & Reliability
+
+- Password hashing using bcrypt  
+- JWT auth with HTTP-only cookies  
+- Token blacklisting on logout  
+- Input validation & schema constraints  
+- Idempotent APIs for transaction safety  
+
+---
+
+## 📌 What this project demonstrates
+
+- Understanding of **financial system design**  
+- Designing **safe, retryable APIs**  
+- Applying **ledger-based data modeling**  
+- Writing **production-grade backend architecture**  
+- Handling **security, auth, and transactional consistency**  
+
+---
+
+## 📝 Project Explanation (For Resume / Portfolio)
+
+This project is a backend system designed to simulate how real financial platforms handle money movement securely and reliably.
+
+Instead of storing user balances directly, the system follows a ledger-based approach where every credit and debit is recorded as an immutable transaction. Balances are calculated dynamically from transaction history using MongoDB aggregation pipelines, ensuring auditability and preventing data inconsistency.
+
+To handle real-world issues like API retries and duplicate requests, idempotent transaction endpoints were implemented to prevent double debits or credits. The system also includes secure authentication using JWT with HTTP-only cookies, role-based access for privileged operations, and email notifications for transaction events.
+
+This project demonstrates practical backend system design patterns used in fintech platforms, focusing on transactional safety, security, and production-ready architecture.
+
+---
+
+## 🧠 Future Scope
+
+- Rate limiting  
+- Redis-based idempotency  
+- Event-driven notifications  
+- OpenAPI (Swagger) documentation  
+- Distributed locks for high concurrency  
+```
+
+---
+
